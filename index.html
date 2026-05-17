@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oscar the Owl - Reading with Max the Puppy</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FFE5B4 0%, #FFB6C1 25%, #B4E5FF 50%, #B4FFB4 75%, #FFE5B4 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .confetti-letter {
+    position: absolute;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    opacity: 0.5;
+    animation: floatDown linear infinite;
+  }
+
+  @keyframes floatDown {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .lesson-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 30px;
+    padding: 35px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    border: 6px solid #2E8B57;
+    margin: 20px auto;
+  }
+
+  .header { text-align: center; margin-bottom: 20px; }
+
+  .header h1 {
+    color: #2E8B57;
+    font-size: 36px;
+    font-family: Arial, sans-serif;
+    text-shadow: 2px 2px 0 #FFD700;
+  }
+
+  /* Oscar Avatar - FIXED: now uses flex centering and SVG fills container */
+  .oscar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    position: relative;
+  }
+
+  .oscar-avatar {
+    width: 220px;
+    height: 220px;
+    position: relative;
+    animation: gentleBob 3s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .oscar-avatar svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .oscar-avatar.talking {
+    animation: talkingBob 0.5s ease-in-out infinite;
+  }
+
+  @keyframes gentleBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes talkingBob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-4px) scale(1.02); }
+  }
+
+  .speech-bubble {
+    background: #FFFFFF;
+    border: 4px solid #2E8B57;
+    border-radius: 25px;
+    padding: 20px 25px;
+    margin: 20px auto;
+    max-width: 800px;
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    color: #333;
+    line-height: 1.6;
+    position: relative;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    min-height: 80px;
+  }
+
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 20px solid #2E8B57;
+  }
+
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-bottom: 16px solid #FFFFFF;
+  }
+
+  .reading-section {
+    background: #FFF8DC;
+    border: 4px dashed #FF8C00;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 900px;
+  }
+
+  .puppy-image {
+    display: block;
+    margin: 0 auto 20px;
+    width: 200px;
+    height: 200px;
+  }
+
+  .reading-text {
+    font-family: Arial, sans-serif;
+    font-size: 32px;
+    line-height: 2;
+    color: #000000;
+    text-align: center;
+  }
+
+  .reading-text .sentence {
+    display: block;
+    margin: 10px 0;
+  }
+
+  .reading-text .word {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 0 2px;
+    transition: color 0.2s ease, transform 0.2s ease;
+    border-radius: 8px;
+    color: #000000;
+  }
+
+  .reading-text .word.highlight {
+    color: #FF0000;
+    transform: scale(1.15);
+    font-weight: bold;
+  }
+
+  .button-container { text-align: center; margin: 25px 0; }
+
+  .btn {
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 5px 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    color: white;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn:active:not(:disabled) { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+  .btn-success { background: linear-gradient(135deg, #2E8B57, #3CB371); }
+
+  .control-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+  }
+
+  .control-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: linear-gradient(135deg, #2E8B57, #3CB371);
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .control-btn:hover { transform: scale(1.1); }
+
+  .question-section {
+    background: #E6F7FF;
+    border: 4px solid #4A90E2;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 900px;
+  }
+
+  .question-text {
+    font-family: Arial, sans-serif;
+    font-size: 28px;
+    color: #2C3E50;
+    text-align: center;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+
+  .answer-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 25px 0;
+  }
+
+  .answer-box {
+    background: white;
+    border: 4px solid #4A90E2;
+    border-radius: 15px;
+    padding: 20px 35px;
+    font-family: Arial, sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+    color: #2C3E50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    min-width: 150px;
+    text-align: center;
+  }
+
+  .answer-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .answer-box.correct {
+    background: #4CAF50;
+    color: white;
+    border-color: #2E7D32;
+    animation: correctPulse 0.6s ease;
+  }
+
+  .answer-box.wrong {
+    background: #F44336;
+    color: white;
+    border-color: #C62828;
+    animation: wrongShake 0.5s ease;
+  }
+
+  @keyframes correctPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  .page {
+    display: none;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .page.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .closing-section {
+    background: linear-gradient(135deg, #FFE5F1, #E5F1FF);
+    border: 4px solid #FF69B4;
+    border-radius: 20px;
+    padding: 35px;
+    margin: 20px auto;
+    max-width: 900px;
+    text-align: center;
+  }
+
+  .closing-section h2 {
+    color: #C71585;
+    font-family: Arial, sans-serif;
+    font-size: 32px;
+    margin-bottom: 20px;
+  }
+
+  .closing-text {
+    font-family: Arial, sans-serif;
+    font-size: 22px;
+    line-height: 1.7;
+    color: #333;
+  }
+
+  .welcome-screen { text-align: center; padding: 40px 20px; }
+
+  .welcome-screen h2 {
+    color: #2E8B57;
+    font-size: 36px;
+    font-family: Arial, sans-serif;
+    margin-bottom: 20px;
+  }
+
+  .start-btn {
+    background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    font-size: 28px;
+    padding: 20px 60px;
+    margin-top: 30px;
+  }
+
+  /* Password screen */
+  .password-screen { text-align: center; padding: 50px 20px; }
+
+  .password-screen h2 {
+    color: #2E8B57;
+    font-family: Arial, sans-serif;
+    font-size: 32px;
+    margin-bottom: 15px;
+  }
+
+  .password-screen p {
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    color: #555;
+    margin-bottom: 25px;
+  }
+
+  .password-input {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    padding: 15px 25px;
+    border: 4px solid #2E8B57;
+    border-radius: 15px;
+    text-align: center;
+    width: 280px;
+    max-width: 90%;
+    letter-spacing: 3px;
+    outline: none;
+    color: #2C3E50;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .password-input:focus {
+    border-color: #FF8E53;
+    box-shadow: 0 0 0 4px rgba(255,142,83,0.2);
+  }
+
+  .password-error {
+    color: #F44336;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    margin-top: 15px;
+    min-height: 28px;
+    font-weight: bold;
+  }
+
+  .lock-icon { font-size: 64px; margin-bottom: 15px; }
+
+  @media (max-width: 600px) {
+    .reading-text { font-size: 24px; }
+    .question-text { font-size: 22px; }
+    .answer-box { font-size: 20px; padding: 15px 20px; }
+    .speech-bubble { font-size: 18px; padding: 15px; }
+    .oscar-avatar { width: 180px; height: 180px; }
+    .header h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- Control panel - shown only after login -->
+<div class="control-panel" id="controlPanel" style="display:none;">
+  <button class="control-btn" id="pausePlayBtn" title="Pause/Play">⏸</button>
+</div>
+
+<div class="container">
+
+  <!-- PASSWORD PAGE -->
+  <div class="page active" id="page-password">
+    <div class="lesson-card">
+      <div class="header">
+        <h1>📖 Reading with Oscar the Owl 📖</h1>
+      </div>
+      <div class="password-screen">
+        <div class="lock-icon">🔒</div>
+        <h2>Welcome!</h2>
+        <p>Please enter the password to start the lesson.</p>
+        <input type="password" id="passwordInput" class="password-input" placeholder="Enter password" autocomplete="off">
+        <div class="password-error" id="passwordError"></div>
+        <div class="button-container">
+          <button class="btn btn-success" id="passwordSubmitBtn">🔓 Unlock Lesson</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WELCOME / START PAGE -->
+  <div class="page" id="page-start">
+    <div class="lesson-card">
+      <div class="header">
+        <h1>📖 Reading with Oscar the Owl 📖</h1>
+      </div>
+      <div class="welcome-screen">
+        <div class="oscar-container">
+          <div class="oscar-avatar" id="oscar-start"></div>
+        </div>
+        <h2>Today's Story: Max the Puppy 🐶</h2>
+        <p style="font-size: 22px; color: #555; margin-top: 15px;">
+          Click the button below to start your reading adventure!
+        </p>
+        <button class="btn btn-primary start-btn" id="startBtn">▶ Start Lesson</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 1: Oscar's Introduction -->
+  <div class="page" id="page-intro">
+    <div class="lesson-card">
+      <div class="header"><h1>📖 Oscar's Welcome 📖</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-intro"></div>
+      </div>
+      <div class="speech-bubble" id="introBubble">
+        <span id="introText">Click the button to hear Oscar speak!</span>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playIntroBtn">🔊 Play Oscar's Introduction</button>
+        <button class="btn btn-success" id="toReadingBtn" style="display:none;">Continue to Story ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: Reading (Oscar reads first) -->
+  <div class="page" id="page-reading1">
+    <div class="lesson-card">
+      <div class="header"><h1>📖 Listen to Oscar Read 📖</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-read1"></div>
+      </div>
+      <div class="reading-section">
+        <svg class="puppy-image" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="130" rx="55" ry="40" fill="#D4A574"/>
+          <circle cx="100" cy="85" r="45" fill="#E8C49A"/>
+          <ellipse cx="68" cy="65" rx="15" ry="25" fill="#8B6F47" transform="rotate(-20 68 65)"/>
+          <ellipse cx="132" cy="65" rx="15" ry="25" fill="#8B6F47" transform="rotate(20 132 65)"/>
+          <circle cx="85" cy="80" r="6" fill="#000"/>
+          <circle cx="115" cy="80" r="6" fill="#000"/>
+          <circle cx="87" cy="78" r="2" fill="#fff"/>
+          <circle cx="117" cy="78" r="2" fill="#fff"/>
+          <ellipse cx="100" cy="95" rx="6" ry="5" fill="#000"/>
+          <path d="M 100 100 Q 95 108 88 105" stroke="#000" stroke-width="2" fill="none"/>
+          <path d="M 100 100 Q 105 108 112 105" stroke="#000" stroke-width="2" fill="none"/>
+          <ellipse cx="100" cy="108" rx="4" ry="3" fill="#FF6B9D"/>
+          <path d="M 150 125 Q 175 110 170 95" stroke="#8B6F47" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <circle cx="45" cy="155" r="18" fill="#FF4444"/>
+          <circle cx="45" cy="155" r="18" fill="none" stroke="#CC0000" stroke-width="2"/>
+          <path d="M 27 155 Q 45 145 63 155" stroke="#CC0000" stroke-width="2" fill="none"/>
+          <path d="M 27 155 Q 45 165 63 155" stroke="#CC0000" stroke-width="2" fill="none"/>
+          <ellipse cx="80" cy="165" rx="10" ry="15" fill="#D4A574"/>
+          <ellipse cx="120" cy="165" rx="10" ry="15" fill="#D4A574"/>
+        </svg>
+        <div class="reading-text" id="readingText1">
+          <span class="sentence" data-sentence="0">
+            <span class="word">Here</span> <span class="word">is</span> <span class="word">my</span> <span class="word">puppy.</span>
+          </span>
+          <span class="sentence" data-sentence="1">
+            <span class="word">His</span> <span class="word">name</span> <span class="word">is</span> <span class="word">Max.</span>
+          </span>
+          <span class="sentence" data-sentence="2">
+            <span class="word">He</span> <span class="word">likes</span> <span class="word">to</span> <span class="word">play</span> <span class="word">with</span> <span class="word">his</span> <span class="word">ball.</span>
+          </span>
+          <span class="sentence" data-sentence="3">
+            <span class="word">He</span> <span class="word">likes</span> <span class="word">to</span> <span class="word">wag</span> <span class="word">his</span> <span class="word">tail.</span>
+          </span>
+          <span class="sentence" data-sentence="4">
+            <span class="word">He</span> <span class="word">is</span> <span class="word">my</span> <span class="word">best</span> <span class="word">friend!</span>
+          </span>
+          <span class="sentence" data-sentence="5">
+            <span class="word">I</span> <span class="word">love</span> <span class="word">my</span> <span class="word">puppy!</span>
+          </span>
+        </div>
+      </div>
+      <div class="speech-bubble" id="readingBubble1">
+        <span>Press the button to hear Oscar read the story.</span>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playReading1Btn">🔊 Oscar Reads the Story</button>
+        <button class="btn btn-success" id="toReading2Btn" style="display:none;">Now Read Together ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: Reading Together -->
+  <div class="page" id="page-reading2">
+    <div class="lesson-card">
+      <div class="header"><h1>📖 Read With Oscar 📖</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-read2"></div>
+      </div>
+      <div class="speech-bubble">
+        <span>Now it is your turn to read with me. Remember to keep your eyes on the words.</span>
+      </div>
+      <div class="reading-section">
+        <div class="reading-text" id="readingText2">
+          <span class="sentence" data-sentence="0">
+            <span class="word">Here</span> <span class="word">is</span> <span class="word">my</span> <span class="word">puppy.</span>
+          </span>
+          <span class="sentence" data-sentence="1">
+            <span class="word">His</span> <span class="word">name</span> <span class="word">is</span> <span class="word">Max.</span>
+          </span>
+          <span class="sentence" data-sentence="2">
+            <span class="word">He</span> <span class="word">likes</span> <span class="word">to</span> <span class="word">play</span> <span class="word">with</span> <span class="word">his</span> <span class="word">ball.</span>
+          </span>
+          <span class="sentence" data-sentence="3">
+            <span class="word">He</span> <span class="word">likes</span> <span class="word">to</span> <span class="word">wag</span> <span class="word">his</span> <span class="word">tail.</span>
+          </span>
+          <span class="sentence" data-sentence="4">
+            <span class="word">He</span> <span class="word">is</span> <span class="word">my</span> <span class="word">best</span> <span class="word">friend!</span>
+          </span>
+          <span class="sentence" data-sentence="5">
+            <span class="word">I</span> <span class="word">love</span> <span class="word">my</span> <span class="word">puppy!</span>
+          </span>
+        </div>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playReading2Btn">🔊 Read Together</button>
+        <button class="btn btn-success" id="toWellDoneBtn" style="display:none;">Continue ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4: Well Done -->
+  <div class="page" id="page-welldone">
+    <div class="lesson-card">
+      <div class="header"><h1>🌟 Well Done! 🌟</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-welldone"></div>
+      </div>
+      <div class="speech-bubble" id="wellDoneBubble">
+        <span>Press play to hear Oscar.</span>
+      </div>
+      <div class="reading-section">
+        <div class="reading-text">
+          <span class="sentence">Here is my puppy.</span>
+          <span class="sentence">His name is Max.</span>
+          <span class="sentence">He likes to play with his ball.</span>
+          <span class="sentence">He likes to wag his tail.</span>
+          <span class="sentence">He is my best friend!</span>
+          <span class="sentence">I love my puppy!</span>
+        </div>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playWellDoneBtn">🔊 Listen to Oscar</button>
+        <button class="btn btn-success" id="nextToQuestionsBtn" style="display:none;">Next ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5: Question 1 -->
+  <div class="page" id="page-q1">
+    <div class="lesson-card">
+      <div class="header"><h1>❓ Question 1 ❓</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-q1"></div>
+      </div>
+      <div class="question-section">
+        <div class="question-text">
+          Question 1: What is the puppy's name?<br>
+          Look at the possible answers and tap on the correct answer.
+        </div>
+        <div class="answer-options">
+          <div class="answer-box" data-correct="false" data-q="1">Sam</div>
+          <div class="answer-box" data-correct="true" data-q="1">Max</div>
+          <div class="answer-box" data-correct="false" data-q="1">Tom</div>
+        </div>
+      </div>
+      <div class="speech-bubble" id="q1Bubble">
+        <span>Tap on the correct answer!</span>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playQ1Btn">🔊 Hear the Question</button>
+        <button class="btn btn-success" id="toQ2Btn" style="display:none;">Next Question ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 6: Question 2 -->
+  <div class="page" id="page-q2">
+    <div class="lesson-card">
+      <div class="header"><h1>❓ Question 2 ❓</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-q2"></div>
+      </div>
+      <div class="question-section">
+        <div class="question-text">
+          Question 2: What does he like to play with?<br>
+          Look at the possible answers and tap on the correct answer.
+        </div>
+        <div class="answer-options">
+          <div class="answer-box" data-correct="false" data-q="2">a bone</div>
+          <div class="answer-box" data-correct="false" data-q="2">a stick</div>
+          <div class="answer-box" data-correct="true" data-q="2">a ball</div>
+        </div>
+      </div>
+      <div class="speech-bubble" id="q2Bubble">
+        <span>Tap on the correct answer!</span>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playQ2Btn">🔊 Hear the Question</button>
+        <button class="btn btn-success" id="toQ3Btn" style="display:none;">Next Question ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 7: Question 3 -->
+  <div class="page" id="page-q3">
+    <div class="lesson-card">
+      <div class="header"><h1>❓ Question 3 ❓</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-q3"></div>
+      </div>
+      <div class="question-section">
+        <div class="question-text">
+          Question 3: What does he like to do?<br>
+          Look at the possible answers and tap on the correct answer.
+        </div>
+        <div class="answer-options">
+          <div class="answer-box" data-correct="true" data-q="3">wag his tail</div>
+          <div class="answer-box" data-correct="false" data-q="3">sleep</div>
+          <div class="answer-box" data-correct="false" data-q="3">eat</div>
+        </div>
+      </div>
+      <div class="speech-bubble" id="q3Bubble">
+        <span>Tap on the correct answer!</span>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playQ3Btn">🔊 Hear the Question</button>
+        <button class="btn btn-success" id="toClosingBtn" style="display:none;">Continue ➡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 8: Closing -->
+  <div class="page" id="page-closing">
+    <div class="lesson-card">
+      <div class="header"><h1>👨‍👩‍👧 A Message for Parents 👨‍👩‍👧</h1></div>
+      <div class="oscar-container">
+        <div class="oscar-avatar" id="oscar-closing"></div>
+      </div>
+      <div class="closing-section">
+        <h2>Thank You! 💚</h2>
+        <div class="closing-text">
+          Thank you Mum or Dad for helping your child with their reading today.
+          Your support makes all the difference!<br><br>
+          Please do this activity again with them this week —
+          even just a few minutes each day helps them grow stronger readers.<br><br>
+          Together, we're helping your child discover the joy of reading.
+          Keep up the wonderful work! 🌟
+        </div>
+      </div>
+      <div class="button-container">
+        <button class="btn btn-primary" id="playClosingBtn">🔊 Play Oscar's Message</button>
+        <button class="btn btn-success" id="restartBtn" style="display:none;">🔄 Start Over</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================
+// PASSWORD PROTECTION
+// ============================================
+const CORRECT_PASSWORD = 'EHLR05';
+const passwordInput = document.getElementById('passwordInput');
+const passwordError = document.getElementById('passwordError');
+const passwordSubmitBtn = document.getElementById('passwordSubmitBtn');
+
+function checkPassword() {
+  const entered = passwordInput.value.trim();
+  if (entered === CORRECT_PASSWORD) {
+    passwordError.textContent = '';
+    showPage('page-start');
+    document.getElementById('controlPanel').style.display = 'flex';
+  } else {
+    passwordError.textContent = '❌ Incorrect password. Please try again.';
+    passwordInput.value = '';
+    passwordInput.focus();
+  }
+}
+
+passwordSubmitBtn.addEventListener('click', checkPassword);
+passwordInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') checkPassword();
+});
+
+// ============================================
+// OSCAR THE OWL SVG - FIXED: viewBox + preserveAspectRatio
+// so face is always visible on every page
+// ============================================
+// Function to build Oscar SVG with UNIQUE gradient IDs each time.
+// CRITICAL FIX: When the same SVG is inserted multiple times on a page,
+// duplicate IDs (bodyGrad, eyeGrad) cause all but the first Oscar's gradients
+// to fail, leaving the body white/transparent. Solution: generate unique IDs.
+function makeOscarSVG(uniqueId) {
+  const bodyGradId = 'bodyGrad_' + uniqueId;
+  const eyeGradId  = 'eyeGrad_' + uniqueId;
+  return `
+<svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <radialGradient id="${bodyGradId}" cx="0.5" cy="0.5">
+      <stop offset="0%" stop-color="#7DBE7E"/>
+      <stop offset="70%" stop-color="#4A9D4F"/>
+      <stop offset="100%" stop-color="#2E7D32"/>
+    </radialGradient>
+    <radialGradient id="${eyeGradId}">
+      <stop offset="0%" stop-color="#FFEB3B"/>
+      <stop offset="100%" stop-color="#F9A825"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="110" cy="135" rx="75" ry="70" fill="url(#${bodyGradId})"/>
+  <path d="M 55 75 L 45 50 L 70 70 Z" fill="#3A8B3F"/>
+  <path d="M 165 75 L 175 50 L 150 70 Z" fill="#3A8B3F"/>
+  <path d="M 60 130 Q 70 140 60 150" stroke="#3A8B3F" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M 75 145 Q 85 155 75 165" stroke="#3A8B3F" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M 145 130 Q 155 140 145 150" stroke="#3A8B3F" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <path d="M 130 145 Q 140 155 130 165" stroke="#3A8B3F" stroke-width="1.5" fill="none" opacity="0.6"/>
+  <ellipse cx="110" cy="50" rx="55" ry="8" fill="#0F5C5C"/>
+  <rect x="55" y="35" width="110" height="20" fill="#0F5C5C" rx="2"/>
+  <polygon points="35,42 110,15 185,42 110,55" fill="#0F7575"/>
+  <circle cx="105" cy="18" r="3" fill="#FFC107"/>
+  <line x1="105" y1="20" x2="80" y2="55" stroke="#FFC107" stroke-width="2"/>
+  <path d="M 76 50 L 80 65 L 84 50 Z" fill="#FFC107"/>
+  <circle cx="80" cy="105" r="28" fill="#FFFFFF"/>
+  <circle cx="140" cy="105" r="28" fill="#FFFFFF"/>
+  <circle cx="80" cy="105" r="20" fill="url(#${eyeGradId})"/>
+  <circle cx="140" cy="105" r="20" fill="url(#${eyeGradId})"/>
+  <circle cx="82" cy="107" r="9" fill="#000000"/>
+  <circle cx="142" cy="107" r="9" fill="#000000"/>
+  <circle cx="85" cy="103" r="3" fill="#FFFFFF"/>
+  <circle cx="145" cy="103" r="3" fill="#FFFFFF"/>
+  <path d="M 110 122 L 100 138 L 110 145 L 120 138 Z" fill="#FFA726"/>
+  <path d="M 110 138 L 105 145 L 115 145 Z" fill="#E65100"/>
+  <ellipse cx="50" cy="145" rx="15" ry="35" fill="#3A8B3F" transform="rotate(-15 50 145)"/>
+  <ellipse cx="170" cy="145" rx="15" ry="35" fill="#3A8B3F" transform="rotate(15 170 145)"/>
+  <rect x="60" y="160" width="100" height="35" fill="#0F7575" rx="3"/>
+  <rect x="65" y="158" width="90" height="30" fill="#FFFFFF"/>
+  <line x1="110" y1="158" x2="110" y2="188" stroke="#CCCCCC" stroke-width="1"/>
+  <line x1="75" y1="168" x2="100" y2="168" stroke="#999" stroke-width="1"/>
+  <line x1="75" y1="175" x2="100" y2="175" stroke="#999" stroke-width="1"/>
+  <line x1="120" y1="168" x2="145" y2="168" stroke="#999" stroke-width="1"/>
+  <line x1="120" y1="175" x2="145" y2="175" stroke="#999" stroke-width="1"/>
+  <ellipse cx="90" cy="200" rx="10" ry="5" fill="#FFA726"/>
+  <ellipse cx="130" cy="200" rx="10" ry="5" fill="#FFA726"/>
+</svg>
+`;
+}
+
+// Insert Oscar into ALL avatar containers - each with unique gradient IDs
+document.querySelectorAll('.oscar-avatar').forEach((el, index) => {
+  el.innerHTML = makeOscarSVG('owl' + index);
+});
+
+// ============================================
+// CONFETTI BACKGROUND (lowercase letters)
+// ============================================
+const letters = 'abcdefghijklmnopqrstuvwxyz';
+const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#FFD93D', '#6BCF7F', '#C589E8'];
+const confettiContainer = document.getElementById('confettiContainer');
+
+function createConfettiLetter() {
+  const letter = document.createElement('div');
+  letter.className = 'confetti-letter';
+  letter.textContent = letters[Math.floor(Math.random() * letters.length)];
+  letter.style.left = Math.random() * 100 + '%';
+  letter.style.color = colors[Math.floor(Math.random() * colors.length)];
+  letter.style.animationDuration = (8 + Math.random() * 10) + 's';
+  letter.style.fontSize = (20 + Math.random() * 25) + 'px';
+  confettiContainer.appendChild(letter);
+  setTimeout(() => letter.remove(), 18000);
+}
+
+setInterval(createConfettiLetter, 400);
+for (let i = 0; i < 20; i++) {
+  setTimeout(createConfettiLetter, i * 200);
+}
+
+// ============================================
+// SPEECH SYNTHESIS
+// ============================================
+let isPaused = false;
+let activeHighlightTimers = [];
+
+function getBestVoice() {
+  const voices = speechSynthesis.getVoices();
+  const preferredNames = [
+    'Google UK English Male', 'Microsoft George', 'Microsoft Ryan',
+    'Daniel', 'Alex', 'Microsoft David', 'Google US English'
+  ];
+  for (const name of preferredNames) {
+    const voice = voices.find(v => v.name.includes(name));
+    if (voice) return voice;
+  }
+  const englishVoice = voices.find(v =>
+    v.lang.startsWith('en') && !v.name.toLowerCase().includes('female')
+  );
+  return englishVoice || voices[0];
+}
+
+function ensureVoicesLoaded() {
+  return new Promise(resolve => {
+    let voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      resolve();
+    } else {
+      speechSynthesis.onvoiceschanged = () => resolve();
+    }
+  });
+}
+
+function speak(text, options = {}) {
+  return new Promise(resolve => {
+    if (speechSynthesis.speaking) speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voice = getBestVoice();
+    if (voice) utterance.voice = voice;
+
+    utterance.rate = options.rate || 0.75;
+    utterance.pitch = options.pitch || 1.1;
+    utterance.volume = 1.0;
+
+    utterance.onend = () => resolve();
+    utterance.onerror = () => resolve();
+
+    speechSynthesis.speak(utterance);
+  });
+}
+
+function clearAllHighlights() {
+  document.querySelectorAll('.reading-text .word').forEach(w => w.classList.remove('highlight'));
+}
+
+function clearHighlightTimers() {
+  activeHighlightTimers.forEach(t => clearTimeout(t));
+  activeHighlightTimers = [];
+}
+
+function setTalking(avatarSelector, isTalking) {
+  const el = document.querySelector(avatarSelector);
+  if (el) {
+    if (isTalking) el.classList.add('talking');
+    else el.classList.remove('talking');
+  }
+}
+
+// ============================================
+// PAUSE / PLAY
+// ============================================
+const pausePlayBtn = document.getElementById('pausePlayBtn');
+pausePlayBtn.addEventListener('click', () => {
+  if (speechSynthesis.speaking && !isPaused) {
+    speechSynthesis.pause();
+    isPaused = true;
+    pausePlayBtn.textContent = '▶';
+  } else if (isPaused) {
+    speechSynthesis.resume();
+    isPaused = false;
+    pausePlayBtn.textContent = '⏸';
+  }
+});
+
+// ============================================
+// PAGE NAVIGATION
+// ============================================
+function showPage(pageId) {
+  speechSynthesis.cancel();
+  clearHighlightTimers();
+  clearAllHighlights();
+  isPaused = false;
+  pausePlayBtn.textContent = '⏸';
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================
+// START LESSON
+// ============================================
+document.getElementById('startBtn').addEventListener('click', async () => {
+  await ensureVoicesLoaded();
+  showPage('page-intro');
+});
+
+// ============================================
+// INTRODUCTION
+// ============================================
+const introText = "Hello my little curious friends. I am so happy that you are joining me again today. Do you know why I wear my special graduation cap? It's because reading is one of the most magical superpowers you can have! And here is the best part: when you can read, the whole world opens up to you. You become smarter, braver, and you can do anything you dream of! I am so excited to help you discover new sounds and new words. Are you ready? Today our story is about a little puppy. I will read the passage to you first. Make sure that you follow with your eyes. Mummy or Daddy, please make sure that your child keeps up.";
+
+document.getElementById('playIntroBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('playIntroBtn');
+  btn.disabled = true;
+  btn.textContent = '🔊 Oscar is speaking...';
+  document.getElementById('introText').textContent = introText;
+  setTalking('#oscar-intro', true);
+  await speak(introText, { rate: 0.75, pitch: 1.1 });
+  setTalking('#oscar-intro', false);
+  btn.disabled = false;
+  btn.textContent = '🔊 Play Again';
+  document.getElementById('toReadingBtn').style.display = 'inline-block';
+});
+
+document.getElementById('toReadingBtn').addEventListener('click', () => {
+  showPage('page-reading1');
+});
+
+// ============================================
+// READING WITH WORD HIGHLIGHTING - FIXED
+// Uses timer-based highlighting that works reliably
+// across browsers (onboundary is unreliable on
+// many mobile browsers and some Chrome versions)
+// ============================================
+
+const sentencesData = [
+  ["Here", "is", "my", "puppy."],
+  ["His", "name", "is", "Max."],
+  ["He", "likes", "to", "play", "with", "his", "ball."],
+  ["He", "likes", "to", "wag", "his", "tail."],
+  ["He", "is", "my", "best", "friend!"],
+  ["I", "love", "my", "puppy!"]
+];
+
+// Speak one sentence and highlight each word as it's spoken
+async function speakSentenceWithHighlight(sentenceWords, wordEls, rate) {
+  return new Promise(resolve => {
+    const sentenceText = sentenceWords.join(' ');
+
+    // Calculate how long each word should be highlighted
+    // Base: at rate 1.0, ~150 wpm = 400ms per word average
+    // Adjust by character length for longer/shorter words
+    const totalChars = sentenceWords.reduce((sum, w) => sum + w.length, 0);
+    // Estimate total speech duration (in ms)
+    // Empirical: ~70ms per character at rate 1.0, scaled inversely by rate
+    const estimatedTotalMs = (totalChars * 75 + sentenceWords.length * 180) / rate;
+
+    // Distribute time per word proportional to character length, but with minimum
+    const wordDurations = sentenceWords.map(w => {
+      const proportional = (w.length / totalChars) * estimatedTotalMs;
+      return Math.max(350, proportional);
+    });
+
+    // Compute cumulative start times
+    const wordStartTimes = [];
+    let cum = 0;
+    wordDurations.forEach(dur => {
+      wordStartTimes.push(cum);
+      cum += dur;
+    });
+
+    const utterance = new SpeechSynthesisUtterance(sentenceText);
+    const voice = getBestVoice();
+    if (voice) utterance.voice = voice;
+    utterance.rate = rate;
+    utterance.pitch = 1.1;
+    utterance.volume = 1.0;
+
+    let highlightingStarted = false;
+
+    function startHighlighting() {
+      if (highlightingStarted) return;
+      highlightingStarted = true;
+
+      wordStartTimes.forEach((startMs, idx) => {
+        const timer = setTimeout(() => {
+          // Clear all previous highlights in this sentence
+          wordEls.forEach(w => w.classList.remove('highlight'));
+          // Add highlight to current word
+          if (wordEls[idx]) {
+            wordEls[idx].classList.add('highlight');
+          }
+        }, startMs);
+        activeHighlightTimers.push(timer);
+      });
+    }
+
+    utterance.onstart = () => {
+      startHighlighting();
+    };
+
+    utterance.onend = () => {
+      // Keep last word highlighted briefly, then clear
+      const finalTimer = setTimeout(() => {
+        wordEls.forEach(w => w.classList.remove('highlight'));
+        resolve();
+      }, 250);
+      activeHighlightTimers.push(finalTimer);
+    };
+
+    utterance.onerror = () => {
+      wordEls.forEach(w => w.classList.remove('highlight'));
+      resolve();
+    };
+
+    // Fallback in case onstart never fires (some browsers/Chrome on Android)
+    const fallbackTimer = setTimeout(() => {
+      startHighlighting();
+    }, 200);
+    activeHighlightTimers.push(fallbackTimer);
+
+    speechSynthesis.speak(utterance);
+  });
+}
+
+// Read all sentences with highlighting
+async function readAllSentencesWithHighlight(containerSelector, oscarSelector, rate = 0.65) {
+  const container = document.querySelector(containerSelector);
+  const sentenceEls = container.querySelectorAll('.sentence');
+
+  setTalking(oscarSelector, true);
+
+  for (let i = 0; i < sentenceEls.length; i++) {
+    const wordEls = sentenceEls[i].querySelectorAll('.word');
+    await speakSentenceWithHighlight(sentencesData[i], wordEls, rate);
+    // Brief pause between sentences
+    await new Promise(r => setTimeout(r, 400));
+  }
+
+  setTalking(oscarSelector, false);
+}
+
+// ============================================
+// PAGE: READING 1 (Oscar reads first - highlighted)
+// ============================================
+document.getElementById('playReading1Btn').addEventListener('click', async () => {
+  const btn = document.getElementById('playReading1Btn');
+  btn.disabled = true;
+  btn.textContent = '🔊 Oscar is reading...';
+  document.getElementById('readingBubble1').innerHTML = '<span>Follow along with your eyes! 👀</span>';
+
+  await readAllSentencesWithHighlight('#readingText1', '#oscar-read1', 0.65);
+
+  btn.disabled = false;
+  btn.textContent = '🔊 Read Again';
+  document.getElementById('readingBubble1').innerHTML = '<span>Well done following along! Ready to read together?</span>';
+  document.getElementById('toReading2Btn').style.display = 'inline-block';
+});
+
+document.getElementById('toReading2Btn').addEventListener('click', () => {
+  showPage('page-reading2');
+});
+
+// ============================================
+// PAGE: READING 2 (Read together - same highlighting)
+// ============================================
+document.getElementById('playReading2Btn').addEventListener('click', async () => {
+  const btn = document.getElementById('playReading2Btn');
+  btn.disabled = true;
+  btn.textContent = '🔊 Reading together...';
+
+  await readAllSentencesWithHighlight('#readingText2', '#oscar-read2', 0.65);
+
+  btn.disabled = false;
+  btn.textContent = '🔊 Read Again';
+  document.getElementById('toWellDoneBtn').style.display = 'inline-block';
+});
+
+document.getElementById('toWellDoneBtn').addEventListener('click', () => {
+  showPage('page-welldone');
+});
+
+// ============================================
+// WELL DONE
+// ============================================
+const wellDoneText = "Well done! Now you are ready to read the sentences again all by yourself. When you have read the story by yourself, I want you to tell Mum or Dad what the story is about. After doing that, you can press the button that says next.";
+
+document.getElementById('playWellDoneBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('playWellDoneBtn');
+  btn.disabled = true;
+  btn.textContent = '🔊 Oscar is speaking...';
+  document.getElementById('wellDoneBubble').innerHTML = `<span>${wellDoneText}</span>`;
+  setTalking('#oscar-welldone', true);
+  await speak(wellDoneText, { rate: 0.75, pitch: 1.1 });
+  setTalking('#oscar-welldone', false);
+  btn.disabled = false;
+  btn.textContent = '🔊 Play Again';
+  document.getElementById('nextToQuestionsBtn').style.display = 'inline-block';
+});
+
+document.getElementById('nextToQuestionsBtn').addEventListener('click', () => {
+  showPage('page-q1');
+});
+
+// ============================================
+// QUESTIONS
+// ============================================
+function setupQuestion(qNum, questionText, correctFeedback, bubbleId, oscarSelector, playBtnId, nextBtnId) {
+  document.getElementById(playBtnId).addEventListener('click', async () => {
+    const btn = document.getElementById(playBtnId);
+    btn.disabled = true;
+    btn.textContent = '🔊 Oscar is speaking...';
+    document.getElementById(bubbleId).innerHTML = `<span>${questionText}</span>`;
+    setTalking(oscarSelector, true);
+    await speak(questionText, { rate: 0.75, pitch: 1.1 });
+    setTalking(oscarSelector, false);
+    btn.disabled = false;
+    btn.textContent = '🔊 Play Again';
+  });
+
+  document.querySelectorAll(`.answer-box[data-q="${qNum}"]`).forEach(box => {
+    box.addEventListener('click', async () => {
+      const isCorrect = box.dataset.correct === 'true';
+      document.querySelectorAll(`.answer-box[data-q="${qNum}"]`).forEach(b => b.style.pointerEvents = 'none');
+
+      if (isCorrect) {
+        box.classList.add('correct');
+        document.getElementById(bubbleId).innerHTML = `<span>${correctFeedback}</span>`;
+        setTalking(oscarSelector, true);
+        await speak(correctFeedback, { rate: 0.8, pitch: 1.15 });
+        setTalking(oscarSelector, false);
+        document.getElementById(nextBtnId).style.display = 'inline-block';
+      } else {
+        box.classList.add('wrong');
+        const wrongMsg = "Oops, try again. Think and read carefully before you choose the answer.";
+        document.getElementById(bubbleId).innerHTML = `<span>${wrongMsg}</span>`;
+        setTalking(oscarSelector, true);
+        await speak(wrongMsg, { rate: 0.8, pitch: 1.1 });
+        setTalking(oscarSelector, false);
+        setTimeout(() => {
+          box.classList.remove('wrong');
+          document.querySelectorAll(`.answer-box[data-q="${qNum}"]`).forEach(b => b.style.pointerEvents = 'auto');
+        }, 1500);
+      }
+    });
+  });
+}
+
+setupQuestion(1, "Question 1: What is the puppy's name? Look at the possible answers and tap on the correct answer.",
+  "Yes! The puppy's name is Max. Well done!", 'q1Bubble', '#oscar-q1', 'playQ1Btn', 'toQ2Btn');
+
+setupQuestion(2, "Question 2: What does he like to play with? Look at the possible answers and tap on the correct answer.",
+  "Yes! The puppy likes to play with a ball. Well done!", 'q2Bubble', '#oscar-q2', 'playQ2Btn', 'toQ3Btn');
+
+setupQuestion(3, "Question 3: What does he like to do? Look at the possible answers and tap on the correct answer.",
+  "Yes! The puppy likes to wag his tail. Well done!", 'q3Bubble', '#oscar-q3', 'playQ3Btn', 'toClosingBtn');
+
+document.getElementById('toQ2Btn').addEventListener('click', () => showPage('page-q2'));
+document.getElementById('toQ3Btn').addEventListener('click', () => showPage('page-q3'));
+document.getElementById('toClosingBtn').addEventListener('click', () => showPage('page-closing'));
+
+// ============================================
+// CLOSING (for parents)
+// ============================================
+const closingText = "Thank you Mum or Dad for helping your child with their reading today. Your support makes all the difference! Please do this activity again with them this week — even just a few minutes each day helps them grow stronger readers. Together, we're helping your child discover the joy of reading. Keep up the wonderful work!";
+
+document.getElementById('playClosingBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('playClosingBtn');
+  btn.disabled = true;
+  btn.textContent = '🔊 Oscar is speaking...';
+  setTalking('#oscar-closing', true);
+  await speak(closingText, { rate: 0.85, pitch: 1.05 });
+  setTalking('#oscar-closing', false);
+  btn.disabled = false;
+  btn.textContent = '🔊 Play Again';
+  document.getElementById('restartBtn').style.display = 'inline-block';
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  showPage('page-start');
+});
+
+// Initialize voices on first interaction
+document.addEventListener('click', () => {
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.getVoices();
+  }
+}, { once: true });
+
+// Focus password input on load
+window.addEventListener('load', () => {
+  passwordInput.focus();
+});
+
+</script>
+</body>
+</html>
